@@ -1,23 +1,40 @@
-const BASE_URL = "https://pokeapi.co/api/v2/pokemon"; // Direkt zum Ziel
+const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 
 async function loadPokemon() {
     try {
         let response = await fetch(BASE_URL);
-
-        // Prüfung: War die Server-Antwort erfolgreich (Status 200-299)?
         if (!response.ok) {
             throw new Error(`HTTP-Fehler! Status: ${response.status}`);
         }
-
         let result = await response.json();
-        console.log("Erfolgreich geladen:", result);
+        
+        // HIER ist die entscheidende Zeile:
+        // Wir übergeben das Array 'results' an die Render-Funktion
+        renderPokemonCards(result.results); 
 
     } catch (error) {
-        // Hier landet alles: Netzwerkfehler, falsche URLs oder der manuelle Error von oben
         console.error("Da lief etwas schief beim Laden der Pokémon:", error.message);
-        
-        // Tipp: Hier könntest du dem Nutzer eine Nachricht auf der Webseite anzeigen
     }
+}
+
+function renderPokemonCards(pokemonList) {
+    const container = document.getElementById('pokemonContainer');
+    
+    // Kleiner Tipp: Vor dem Laden leeren, falls du die Funktion mehrmals aufrufst
+    // container.innerHTML = ''; 
+
+    pokemonList.forEach((pokemon) => {
+        const pokemonId = pokemon.url.split('/').filter(Boolean).pop();
+
+        const cardHTML = `
+            <div class="pokemonCard">
+                <p>#${pokemonId}</p>
+                <h3>${pokemon.name}</h3>
+            </div>
+        `;
+
+        container.innerHTML += cardHTML;
+    });
 }
 
 loadPokemon();
