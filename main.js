@@ -4,31 +4,28 @@ const limit = 20;
 
 // 1. Die Lade-Funktion
 async function loadPokemon() {
-    // 1. Button-Referenz holen und deaktivieren
     const btn = document.getElementById('loadMoreBTN');
+    const loader = document.getElementById('loader'); // Spinner holen
+
+    // 1. UI vorbereiten
     btn.disabled = true;
-    btn.innerText = "Lädt..."; // Optional: Text ändern für besseres Feedback
+    loader.classList.remove('hidden'); // Spinner zeigen
 
     try {
         const url = `${BASE_URL}?offset=${currentOffset}&limit=${limit}`;
         let response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP-Fehler! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error("Fehler");
         
         let result = await response.json();
-
         renderPokemonCards(result.results);
-
         currentOffset += limit;
         
     } catch (error) {
-        console.error("Da lief etwas schief beim Laden der Pokémon:", error.message);
+        console.error(error.message);
     } finally {
-        // 2. Button wieder aktivieren (egal ob Erfolg oder Fehler)
+        // 2. UI zurücksetzen
         btn.disabled = false;
-        btn.innerText = "Mehr laden"; 
+        loader.classList.add('hidden'); // Spinner wieder verstecken
     }
 }
 
