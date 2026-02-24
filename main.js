@@ -4,18 +4,31 @@ const limit = 20;
 
 // 1. Die Lade-Funktion
 async function loadPokemon() {
+    // 1. Button-Referenz holen und deaktivieren
+    const btn = document.getElementById('loadMoreBTN');
+    btn.disabled = true;
+    btn.innerText = "Lädt..."; // Optional: Text ändern für besseres Feedback
+
     try {
         const url = `${BASE_URL}?offset=${currentOffset}&limit=${limit}`;
         let response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+        }
+        
         let result = await response.json();
-        
-        // Wir schicken die neuen 20 an die Render-Funktion
+
         renderPokemonCards(result.results);
-        
-        // Offset erhöhen für den nächsten Klick
+
         currentOffset += limit;
+        
     } catch (error) {
-        console.error("Fehler beim Laden:", error);
+        console.error("Da lief etwas schief beim Laden der Pokémon:", error.message);
+    } finally {
+        // 2. Button wieder aktivieren (egal ob Erfolg oder Fehler)
+        btn.disabled = false;
+        btn.innerText = "Mehr laden"; 
     }
 }
 
