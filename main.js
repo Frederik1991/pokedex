@@ -31,16 +31,24 @@ async function loadPokemon() {
 
 function renderPokemonCards(pokemonList) {
     const container = document.getElementById('pokemonContainer');
-
-    // Diese Zeile muss weg: container.innerHTML = ''; 
     
     pokemonList.forEach((pokemon) => {
         const pokemonId = pokemon.url.split('/').filter(Boolean).pop();
+        
+        // Der Link zum offiziellen Artwork oder Sprite
+        // Variante A: Kleiner Sprite (Pixel-Look)
+        const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+        
+        // Variante B: Hochauflösendes "Official Artwork" (falls du es schöner magst)
+        // const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+
+        const formattedId = pokemonId.toString().padStart(3, '0');
 
         const cardHTML = `
             <div class="pokemonCard">
-                <p>#${pokemonId}</p>
-                <h3>${pokemon.name.toUpperCase()}</h3>
+                <p class="pokemon-id">#${formattedId}</p>
+                <img src="${imageUrl}" alt="${pokemon.name}" class="pokemon-image">
+                <h3 class="pokemon-name">${pokemon.name.toUpperCase()}</h3>
             </div>
         `;
 
