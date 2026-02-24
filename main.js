@@ -61,22 +61,26 @@ function renderPokemonCards(pokemonList) {
     const container = document.getElementById('pokemonContainer');
 
     pokemonList.forEach((pokemon) => {
-        // Typ und Farbe bestimmen
-        const type = pokemon.types[0].type.name;
-        const color = TYPE_COLORS[type] || '#F5F5F5';
-        
-        // ID formatieren (ist jetzt direkt als Zahl verfügbar)
+        // 1. Hintergrundfarbe basierend auf dem ersten Typ
+        const mainType = pokemon.types[0].type.name;
+        const backgroundColor = TYPE_COLORS[mainType] || '#F5F5F5';
+
+        // 2. HTML für ALLE Typen erstellen (Pillen-Design)
+        const typesHTML = pokemon.types.map(t => 
+            `<span class="type-badge">${t.type.name}</span>`
+        ).join(''); // Verbindet die Spans zu einem String
+
         const formattedId = pokemon.id.toString().padStart(3, '0');
-        
-        // Bildquelle (nutzen wir direkt aus dem geladenen Objekt)
-        const imageUrl = pokemon.sprites.front_default;
+        const imageUrl = pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default;
 
         const cardHTML = `
-            <div class="pokemonCard" style="background-color: ${color}">
+            <div class="pokemonCard" style="background-color: ${backgroundColor}">
                 <p class="pokemon-id">#${formattedId}</p>
                 <img src="${imageUrl}" alt="${pokemon.name}" class="pokemon-image">
                 <h3 class="pokemon-name">${pokemon.name.toUpperCase()}</h3>
-                <p class="pokemon-type">Type: ${type}</p>
+                <div class="types-container">
+                    ${typesHTML}
+                </div>
             </div>
         `;
         container.innerHTML += cardHTML;
