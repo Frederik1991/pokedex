@@ -87,6 +87,27 @@ function renderPokemonCards(pokemonList) {
     });
 }
 
+document.getElementById('pokemonSearch').addEventListener('input', function(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const allCards = document.querySelectorAll('.pokemonCard');
+
+    // Bedingung: Erst ab mehr als 3 Buchstaben suchen
+    if (searchTerm.length >= 3) {
+        allCards.forEach(card => {
+            const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
+            
+            if (name.includes(searchTerm)) {
+                card.style.display = "flex"; // Anzeigen
+            } else {
+                card.style.display = "none"; // Verstecken
+            }
+        });
+    } else {
+        // Wenn weniger als 4 Zeichen: Alle wieder anzeigen
+        allCards.forEach(card => card.style.display = "flex");
+    }
+});
+
 loadPokemon();
 
 document.getElementById('loadMoreBTN').addEventListener('click', loadPokemon);

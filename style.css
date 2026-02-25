@@ -77,3 +77,23 @@
     background-color: rgba(255, 255, 255, 0.4); /* Halbtransparentes Weiß */
     text-transform: uppercase;
 }
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#pokemonSearch {
+    padding: 12px 20px;
+    width: 300px;
+    border-radius: 25px;
+    border: 2px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#pokemonSearch:focus {
+    border-color: #3498db;
+}
