@@ -61,29 +61,35 @@ function renderPokemonCards(pokemonList) {
     const container = document.getElementById('pokemonContainer');
 
     pokemonList.forEach((pokemon) => {
-        // 1. Hintergrundfarbe basierend auf dem ersten Typ
         const mainType = pokemon.types[0].type.name;
         const backgroundColor = TYPE_COLORS[mainType] || '#F5F5F5';
-
-        // 2. HTML für ALLE Typen erstellen (Pillen-Design)
-        const typesHTML = pokemon.types.map(t => 
-            `<span class="type-badge">${t.type.name}</span>`
-        ).join(''); // Verbindet die Spans zu einem String
-
+        const typesHTML = pokemon.types.map(t => `<span class="type-badge">${t.type.name}</span>`).join('');
         const formattedId = pokemon.id.toString().padStart(3, '0');
         const imageUrl = pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default;
 
-        const cardHTML = `
-            <div class="pokemonCard" style="background-color: ${backgroundColor}">
-                <p class="pokemon-id">#${formattedId}</p>
-                <img src="${imageUrl}" alt="${pokemon.name}" class="pokemon-image">
-                <h3 class="pokemon-name">${pokemon.name.toUpperCase()}</h3>
-                <div class="types-container">
-                    ${typesHTML}
-                </div>
+        // 1. Wir erstellen das div-Element für die Karte
+        const card = document.createElement('div');
+        card.className = 'pokemonCard';
+        card.style.backgroundColor = backgroundColor;
+
+        // 2. Wir füllen das Innere der Karte (wie vorher)
+        card.innerHTML = `
+            <p class="pokemon-id">#${formattedId}</p>
+            <img src="${imageUrl}" alt="${pokemon.name}" class="pokemon-image">
+            <h3 class="pokemon-name">${pokemon.name.toUpperCase()}</h3>
+            <div class="types-container">
+                ${typesHTML}
             </div>
         `;
-        container.innerHTML += cardHTML;
+
+        // 3. DER WICHTIGSTE SCHRITT: Klick-Event hinzufügen
+        // Wenn man auf diese Karte klickt, wird die Funktion showDetails aufgerufen
+        card.addEventListener('click', () => {
+            showDetails(pokemon); 
+        });
+
+        // 4. Die Karte in den Container packen
+        container.appendChild(card);
     });
 }
 
@@ -107,6 +113,78 @@ document.getElementById('pokemonSearch').addEventListener('input', function(even
         allCards.forEach(card => card.style.display = "flex");
     }
 });
+
+function showDetails(pokemon) {
+    const modal = document.getElementById('pokemonModal');
+    const modalBody = document.getElementById('modalBody');
+
+    const statsHTML = pokemon.stats.map(s => {
+        const percent = Math.min(100, (s.base_stat / 200) * 100);
+        return `
+            <div class="stat-row">
+                <span class="stat-name">${s.stat.name.toUpperCase()}</span>
+                <div class="stat-bar-bg">
+                    <div class="stat-bar-fill" style="width: ${percent}%"></div>
+                </div>
+                <span class="stat-number">${s.base_stat}</span>
+            </div>
+        `;
+    }).join('');
+
+    modalBody.innerHTML = `
+        <h2 style="margin-bottom: 0;">${pokemon.name.toUpperCase()}</h2>
+        <p style="color: #666;">#${pokemon.id.toString().padStart(3, '0')}</p>
+        <img src="${pokemon.sprites.other['official-artwork'].front_default}" style="width: 180px;">
+        
+        <div class="info-box" style="display: flex; justify-content: space-around; margin: 15px 0;">
+            <span><strong>Weight:</strong> ${pokemon.weight / 10} kg</span>
+            <span><strong>Height:</strong> ${pokemon.height / 10} m</span>
+        </div>
+
+        <div class="stats-container">
+            ${statsHTML}
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+    // NEU: Scrollen im Hintergrund verhindern
+    document.body.classList.add('no-scroll');
+}
+
+// --- Diese Funktionen kommen AUSSERHALB von showDetails ganz unten in dein Skript ---
+
+function closeModal() {
+    const modal = document.getElementById('pokemonModal');
+    modal.classList.add('hidden');
+    // NEU: Scrollen wieder erlauben
+    document.body.classList.remove('no-scroll');
+}
+
+// Einmaliger Listener für Klicks außerhalb (Click-Outside)
+window.addEventListener('click', (event) => {
+    const modal = document.getElementById('pokemonModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+// Einmaliger Listener für die Escape-Taste
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+const modal = document.getElementById('pokemonModal');
+
+// 2. Auf Klicks im gesamten Fenster reagieren
+window.addEventListener('click', (event) => {
+    // Wenn das Ziel des Klicks genau das dunkle Overlay (modal) ist 
+    // und nicht der weiße Kasten (modal-content) darin:
+    if (event.target === modal) {
+        modal.classList.add('hidden');
+    }
+});
+
 
 loadPokemon();
 

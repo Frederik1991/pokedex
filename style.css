@@ -1,3 +1,8 @@
+.no-scroll {
+    overflow: hidden;
+    height: 100vh;
+}
+
 #pokemonContainer {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -96,4 +101,75 @@
 
 #pokemonSearch:focus {
     border-color: #3498db;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.hidden { display: none !important; }
+
+.stats-container {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.stat-name {
+    width: 80px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.stat-bar-bg {
+    flex-grow: 1;
+    background-color: #eee;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    background-color: #3498db; /* Standardfarbe */
+    transition: width 0.5s ease-out;
+}
+
+.stat-number {
+    width: 30px;
+    text-align: right;
+    font-size: 0.8rem;
 }
