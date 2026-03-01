@@ -1,6 +1,7 @@
 const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 let currentOffset = 0;
 const limit = 20;
+let allLoadedPokemon = []; // Hier speichern wir alle Details
 
 const TYPE_COLORS = {
     fire: '#FDDFDF',
@@ -32,7 +33,7 @@ async function loadPokemon() {
         const url = `${BASE_URL}?offset=${currentOffset}&limit=${limit}`;
         let response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
-        
+
         let result = await response.json();
 
         // --- NEU: Detail-Daten für alle 20 Pokémon gleichzeitig holen ---
@@ -43,7 +44,7 @@ async function loadPokemon() {
             })
         );
 
-        // Wir übergeben jetzt die Liste mit ALLEN Infos (Typen, ID, Sprites)
+        allLoadedPokemon = [...allLoadedPokemon, ...pokemonDetailList]; // Liste erweitern
         renderPokemonCards(pokemonDetailList);
 
         currentOffset += limit;
@@ -85,7 +86,7 @@ function renderPokemonCards(pokemonList) {
         // 3. DER WICHTIGSTE SCHRITT: Klick-Event hinzufügen
         // Wenn man auf diese Karte klickt, wird die Funktion showDetails aufgerufen
         card.addEventListener('click', () => {
-            showDetails(pokemon); 
+            showDetails(pokemon);
         });
 
         // 4. Die Karte in den Container packen
@@ -93,7 +94,7 @@ function renderPokemonCards(pokemonList) {
     });
 }
 
-document.getElementById('pokemonSearch').addEventListener('input', function(event) {
+document.getElementById('pokemonSearch').addEventListener('input', function (event) {
     const searchTerm = event.target.value.toLowerCase();
     const allCards = document.querySelectorAll('.pokemonCard');
 
@@ -101,7 +102,7 @@ document.getElementById('pokemonSearch').addEventListener('input', function(even
     if (searchTerm.length >= 3) {
         allCards.forEach(card => {
             const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
-            
+
             if (name.includes(searchTerm)) {
                 card.style.display = "flex"; // Anzeigen
             } else {
@@ -135,6 +136,7 @@ function showDetails(pokemon) {
         <h2 style="margin-bottom: 0;">${pokemon.name.toUpperCase()}</h2>
         <p style="color: #666;">#${pokemon.id.toString().padStart(3, '0')}</p>
         <img src="${pokemon.sprites.other['official-artwork'].front_default}" style="width: 180px;">
+        <p class="stat-number-id">#${pokemon.id.toString().padStart(3, '0')}</p>
         
         <div class="info-box" style="display: flex; justify-content: space-around; margin: 15px 0;">
             <span><strong>Weight:</strong> ${pokemon.weight / 10} kg</span>
@@ -184,6 +186,26 @@ window.addEventListener('click', (event) => {
         modal.classList.add('hidden');
     }
 });
+
+function navigatePokemon(direction) {
+    // 1. Aktuelles Pokémon im modalBody finden (über die ID)
+    const currentId = parseInt(document.querySelector('.stat-number-id').innerText.replace('#', ''));
+    
+    // 2. Index im Array finden
+    const currentIndex = allLoadedPokemon.findIndex(p => p.id === currentId);
+    
+    // 3. Neuen Index berechnen
+    let newIndex = currentIndex + direction;
+
+    // 4. Prüfen, ob wir am Ende oder Anfang sind
+    if (newIndex >= 0 && newIndex < allLoadedPokemon.length) {
+        showDetails(allLoadedPokemon[newIndex]);
+    }
+}
+
+// Event Listener für die Buttons (einmalig am Ende des Skripts)
+document.getElementById('prevBtn').onclick = (e) => { e.stopPropagation(); navigatePokemon(-1); };
+document.getElementById('nextBtn').onclick = (e) => { e.stopPropagation(); navigatePokemon(1); };
 
 
 loadPokemon();

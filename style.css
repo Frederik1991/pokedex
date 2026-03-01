@@ -173,3 +173,28 @@
     text-align: right;
     font-size: 0.8rem;
 }
+
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background 0.2s;
+}
+
+.nav-btn:hover { background: white; }
+.prev { left: -50px; } /* Außerhalb des Kastens auf großen Bildschirmen */
+.next { right: -50px; }
+
+/* Auf Handys schieben wir sie etwas weiter rein */
+@media (max-width: 600px) {
+    .prev { left: 10px; }
+    .next { right: 10px; }
+}
