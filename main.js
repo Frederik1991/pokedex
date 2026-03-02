@@ -1,7 +1,7 @@
 const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 let currentOffset = 0;
 const limit = 20;
-let allLoadedPokemon = []; // Hier speichern wir alle Details
+let allLoadedPokemon = [];
 
 const TYPE_COLORS = {
     fire: '#FDDFDF',
@@ -20,194 +20,98 @@ const TYPE_COLORS = {
     normal: '#F5F5F5'
 };
 
-// 1. Die Lade-Funktion
-async function loadPokemon() {
-    const btn = document.getElementById('loadMoreBTN');
-    const loader = document.getElementById('loader');
-
-    btn.disabled = true;
-    btn.innerText = "Lädt...";
-    loader.classList.remove('hidden');
-
-    try {
-        const url = `${BASE_URL}?offset=${currentOffset}&limit=${limit}`;
-        let response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
-
-        let result = await response.json();
-
-        // --- NEU: Detail-Daten für alle 20 Pokémon gleichzeitig holen ---
-        const pokemonDetailList = await Promise.all(
-            result.results.map(async (p) => {
-                const res = await fetch(p.url); // Die individuelle URL aufrufen
-                return await res.json();        // Das komplette Pokémon-Objekt zurückgeben
-            })
-        );
-
-        allLoadedPokemon = [...allLoadedPokemon, ...pokemonDetailList]; // Liste erweitern
-        renderPokemonCards(pokemonDetailList);
-
-        currentOffset += limit;
-
-    } catch (error) {
-        console.error("Fehler:", error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Mehr laden";
-        loader.classList.add('hidden');
-    }
+async function fetchPokemonDetails(results) {
+    return Promise.all(results.map(async (p) => (await fetch(p.url)).json()));
 }
 
-function renderPokemonCards(pokemonList) {
+async function loadPokemon() {
+    toggleUIState(true);
+    try {
+        const url = `${BASE_URL}?offset=${currentOffset}&limit=${limit}`;
+        const data = await (await fetch(url)).json();
+        const details = await fetchPokemonDetails(data.results);
+        allLoadedPokemon.push(...details);
+        renderPokemonCards(details);
+        currentOffset += limit;
+    } catch (e) { console.error("Fehler:", e); }
+    finally { toggleUIState(false); }
+}
+
+function toggleUIState(isLoading) {
+    const btn = document.getElementById('loadMoreBTN');
+    const loader = document.getElementById('loader');
+    btn.disabled = isLoading;
+    btn.innerText = isLoading ? "Lädt..." : "Mehr laden";
+    loader.classList.toggle('hidden', !isLoading);
+}
+
+function getCardHTML(p) {
+    const type = p.types[0].type.name;
+    const img = p.sprites.other['official-artwork'].front_default;
+    return`
+    <div class="pokemonCard" style="background-color: ${TYPE_COLORS[type] || '#F5F5F5'}">
+        <p>#${p.id.toString().padStart(3, '0')}</p>
+        <img src="${img}" class="pokemon-image">
+        <h3 class="pokemon-name">${p.name.toUpperCase()}</h3>
+        <div class="types-container">${p.types.map(t => '<span class="type-badge">' + t.type.name + '</span>').join('')}</div> </div>;
+`
+}
+
+function renderPokemonCards(list) {
     const container = document.getElementById('pokemonContainer');
-
-    pokemonList.forEach((pokemon) => {
-        const mainType = pokemon.types[0].type.name;
-        const backgroundColor = TYPE_COLORS[mainType] || '#F5F5F5';
-        const typesHTML = pokemon.types.map(t => `<span class="type-badge">${t.type.name}</span>`).join('');
-        const formattedId = pokemon.id.toString().padStart(3, '0');
-        const imageUrl = pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default;
-
-        // 1. Wir erstellen das div-Element für die Karte
-        const card = document.createElement('div');
-        card.className = 'pokemonCard';
-        card.style.backgroundColor = backgroundColor;
-
-        // 2. Wir füllen das Innere der Karte (wie vorher)
-        card.innerHTML = `
-            <p class="pokemon-id">#${formattedId}</p>
-            <img src="${imageUrl}" alt="${pokemon.name}" class="pokemon-image">
-            <h3 class="pokemon-name">${pokemon.name.toUpperCase()}</h3>
-            <div class="types-container">
-                ${typesHTML}
-            </div>
-        `;
-
-        // 3. DER WICHTIGSTE SCHRITT: Klick-Event hinzufügen
-        // Wenn man auf diese Karte klickt, wird die Funktion showDetails aufgerufen
-        card.addEventListener('click', () => {
-            showDetails(pokemon);
-        });
-
-        // 4. Die Karte in den Container packen
+    list.forEach(pokemon => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = getCardHTML(pokemon);
+        const card = tempDiv.firstElementChild;
+        card.onclick = () => showDetails(pokemon);
         container.appendChild(card);
     });
 }
 
-document.getElementById('pokemonSearch').addEventListener('input', function (event) {
-    const searchTerm = event.target.value.toLowerCase();
-    const allCards = document.querySelectorAll('.pokemonCard');
+function getStatRow(s) {
+    const percent = Math.min(100, (s.base_stat / 200) * 100);
+    return `<div class="stat-row">
+        <span class="stat-name">${s.stat.name.toUpperCase()}</span>
+        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${percent}%"></div></div>
+        <span class="stat-number">${s.base_stat}</span> </div>`;
+}
 
-    // Bedingung: Erst ab mehr als 3 Buchstaben suchen
-    if (searchTerm.length >= 3) {
-        allCards.forEach(card => {
-            const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
-
-            if (name.includes(searchTerm)) {
-                card.style.display = "flex"; // Anzeigen
-            } else {
-                card.style.display = "none"; // Verstecken
-            }
-        });
-    } else {
-        // Wenn weniger als 4 Zeichen: Alle wieder anzeigen
-        allCards.forEach(card => card.style.display = "flex");
-    }
-});
-
-function showDetails(pokemon) {
-    const modal = document.getElementById('pokemonModal');
-    const modalBody = document.getElementById('modalBody');
-
-    const statsHTML = pokemon.stats.map(s => {
-        const percent = Math.min(100, (s.base_stat / 200) * 100);
-        return `
-            <div class="stat-row">
-                <span class="stat-name">${s.stat.name.toUpperCase()}</span>
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill" style="width: ${percent}%"></div>
-                </div>
-                <span class="stat-number">${s.base_stat}</span>
-            </div>
-        `;
-    }).join('');
-
-    modalBody.innerHTML = `
-        <h2 style="margin-bottom: 0;">${pokemon.name.toUpperCase()}</h2>
-        <p style="color: #666;">#${pokemon.id.toString().padStart(3, '0')}</p>
-        <img src="${pokemon.sprites.other['official-artwork'].front_default}" style="width: 180px;">
-        <p class="stat-number-id">#${pokemon.id.toString().padStart(3, '0')}</p>
-        
-        <div class="info-box" style="display: flex; justify-content: space-around; margin: 15px 0;">
-            <span><strong>Weight:</strong> ${pokemon.weight / 10} kg</span>
-            <span><strong>Height:</strong> ${pokemon.height / 10} m</span>
-        </div>
-
-        <div class="stats-container">
-            ${statsHTML}
-        </div>
-    `;
-
-    modal.classList.remove('hidden');
-    // NEU: Scrollen im Hintergrund verhindern
+function showDetails(p) {
+    const body = document.getElementById('modalBody');
+    body.innerHTML =
+        `
+    <h2>${p.name.toUpperCase()}</h2> 
+    <p class="stat-number-id">#${p.id.toString().padStart(3, '0')}</p> 
+    <img src="${p.sprites.other['official-artwork'].front_default}" style="width: 150px;"> 
+    <div class="stats-container">${p.stats.map(getStatRow).join('')}</div>`;
+    
+    document.getElementById('pokemonModal').classList.remove('hidden');
     document.body.classList.add('no-scroll');
 }
 
-// --- Diese Funktionen kommen AUSSERHALB von showDetails ganz unten in dein Skript ---
+function navigatePokemon(direction) {
+    const idTag = document.querySelector('.stat-number-id');
+    if (!idTag) return;
+    const currentId = parseInt(idTag.innerText.replace('#', ''));
+    const index = allLoadedPokemon.findIndex(p => p.id === currentId);
+    const newIdx = index + direction;
+    if (newIdx >= 0 && newIdx < allLoadedPokemon.length) showDetails(allLoadedPokemon[newIdx]);
+}
 
 function closeModal() {
-    const modal = document.getElementById('pokemonModal');
-    modal.classList.add('hidden');
-    // NEU: Scrollen wieder erlauben
+    document.getElementById('pokemonModal').classList.add('hidden');
     document.body.classList.remove('no-scroll');
 }
 
-// Einmaliger Listener für Klicks außerhalb (Click-Outside)
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('pokemonModal');
-    if (event.target === modal) {
-        closeModal();
-    }
+window.addEventListener('click', (e) => e.target.id === 'pokemonModal' && closeModal());
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') navigatePokemon(-1);
+    if (e.key === 'ArrowRight') navigatePokemon(1);
 });
 
-// Einmaliger Listener für die Escape-Taste
-window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        closeModal();
-    }
-});
-const modal = document.getElementById('pokemonModal');
-
-// 2. Auf Klicks im gesamten Fenster reagieren
-window.addEventListener('click', (event) => {
-    // Wenn das Ziel des Klicks genau das dunkle Overlay (modal) ist 
-    // und nicht der weiße Kasten (modal-content) darin:
-    if (event.target === modal) {
-        modal.classList.add('hidden');
-    }
-});
-
-function navigatePokemon(direction) {
-    // 1. Aktuelles Pokémon im modalBody finden (über die ID)
-    const currentId = parseInt(document.querySelector('.stat-number-id').innerText.replace('#', ''));
-    
-    // 2. Index im Array finden
-    const currentIndex = allLoadedPokemon.findIndex(p => p.id === currentId);
-    
-    // 3. Neuen Index berechnen
-    let newIndex = currentIndex + direction;
-
-    // 4. Prüfen, ob wir am Ende oder Anfang sind
-    if (newIndex >= 0 && newIndex < allLoadedPokemon.length) {
-        showDetails(allLoadedPokemon[newIndex]);
-    }
-}
-
-// Event Listener für die Buttons (einmalig am Ende des Skripts)
 document.getElementById('prevBtn').onclick = (e) => { e.stopPropagation(); navigatePokemon(-1); };
 document.getElementById('nextBtn').onclick = (e) => { e.stopPropagation(); navigatePokemon(1); };
-
+document.getElementById('loadMoreBTN').addEventListener('click', loadPokemon);
 
 loadPokemon();
-
-document.getElementById('loadMoreBTN').addEventListener('click', loadPokemon);
