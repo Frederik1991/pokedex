@@ -1,13 +1,29 @@
+body {
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
 .no-scroll {
     overflow: hidden;
     height: 100vh;
 }
 
 #pokemonContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 16px;
-    padding: 20px;
+display: grid;
+/* Erstellt automatisch so viele Spalten wie Platz ist, jede genau 200px breit */
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 20px;
+max-width: 1200px;
+width: 90%;
+margin: 0 auto;
+padding: 20px;
 }
 
 .pokemonCard {
@@ -15,7 +31,7 @@
     border-radius: 12px;
     padding: 10px;
     text-align: center;
-    box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
     background-color: white;
     font-family: sans-serif;
     display: flex;
@@ -25,7 +41,8 @@
 }
 
 .pokemonCard:hover {
-    transform: scale(1.05); /* Karte wird leicht größer */
+    transform: scale(1.05);
+    /* Karte wird leicht größer */
 }
 
 .pokemon-image {
@@ -50,15 +67,21 @@
     width: 40px;
     height: 40px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db; /* Die Farbe des Spinners */
+    border-top: 4px solid #3498db;
+    /* Die Farbe des Spinners */
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Helfer-Klasse zum Verstecken */
@@ -79,7 +102,8 @@
     font-size: 0.75rem;
     font-weight: bold;
     color: #333;
-    background-color: rgba(255, 255, 255, 0.4); /* Halbtransparentes Weiß */
+    background-color: rgba(255, 255, 255, 0.4);
+    /* Halbtransparentes Weiß */
     text-transform: uppercase;
 }
 
@@ -90,17 +114,19 @@
 }
 
 #pokemonSearch {
+    margin: 20px;
     padding: 12px 20px;
     width: 300px;
+    border: 1px solid #ddd;
     border-radius: 25px;
-    border: 2px solid #ddd;
-    font-size: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     outline: none;
-    transition: border-color 0.3s;
+    transition: box-shadow 0.3s ease;
 }
 
 #pokemonSearch:focus {
-    border-color: #3498db;
+box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+border-color: #ccc;
 }
 
 .modal {
@@ -110,7 +136,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -134,7 +160,9 @@
     cursor: pointer;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 .stats-container {
     text-align: left;
@@ -164,7 +192,8 @@
 
 .stat-bar-fill {
     height: 100%;
-    background-color: #3498db; /* Standardfarbe */
+    background-color: #3498db;
+    /* Standardfarbe */
     transition: width 0.5s ease-out;
 }
 
@@ -185,16 +214,62 @@
     height: 40px;
     font-size: 24px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: background 0.2s;
 }
 
-.nav-btn:hover { background: white; }
-.prev { left: -50px; } /* Außerhalb des Kastens auf großen Bildschirmen */
-.next { right: -50px; }
+.nav-btn:hover {
+    background: white;
+}
+
+.prev {
+    left: -50px;
+}
+
+/* Außerhalb des Kastens auf großen Bildschirmen */
+.next {
+    right: -50px;
+}
+
+#loadMoreBTN {
+background-color: #333;
+color: white;
+padding: 12px 30px;
+font-size: 16px;
+font-weight: bold;
+border: none;
+border-radius: 25px;
+cursor: pointer;
+margin: 30px 0;
+transition: all 0.3s ease;
+box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#loadMoreBTN:hover {
+background-color: #555;
+transform: scale(1.05);
+box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+#loadMoreBTN:disabled {
+background-color: #ccc;
+cursor: not-allowed;
+transform: none;
+}
+
+#loader {
+margin: 20px 0;
+font-weight: bold;
+color: #666;
+}
 
 /* Auf Handys schieben wir sie etwas weiter rein */
 @media (max-width: 600px) {
-    .prev { left: 10px; }
-    .next { right: 10px; }
+    .prev {
+        left: 10px;
+    }
+
+    .next {
+        right: 10px;
+    }
 }

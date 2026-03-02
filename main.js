@@ -103,6 +103,16 @@ function closeModal() {
     document.body.classList.remove('no-scroll');
 }
 
+document.getElementById('pokemonSearch').addEventListener('input', (e) => {
+const term = e.target.value.toLowerCase();
+const cards = document.querySelectorAll('.pokemonCard');
+cards.forEach(card => {
+const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
+const shouldShow = term.length < 3 || name.includes(term);
+card.style.display = shouldShow ? "flex" : "none";
+});
+});
+
 window.addEventListener('click', (e) => e.target.id === 'pokemonModal' && closeModal());
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
