@@ -17,7 +17,6 @@ body {
 
 #pokemonContainer {
 display: grid;
-/* Erstellt automatisch so viele Spalten wie Platz ist, jede genau 200px breit */
 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 gap: 20px;
 max-width: 1200px;
@@ -42,7 +41,6 @@ padding: 20px;
 
 .pokemonCard:hover {
     transform: scale(1.05);
-    /* Karte wird leicht größer */
 }
 
 .pokemon-image {
@@ -68,7 +66,6 @@ padding: 20px;
     height: 40px;
     border: 4px solid #f3f3f3;
     border-top: 4px solid #3498db;
-    /* Die Farbe des Spinners */
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto;
@@ -84,7 +81,6 @@ padding: 20px;
     }
 }
 
-/* Helfer-Klasse zum Verstecken */
 .hidden {
     display: none;
 }
@@ -103,7 +99,6 @@ padding: 20px;
     font-weight: bold;
     color: #333;
     background-color: rgba(255, 255, 255, 0.4);
-    /* Halbtransparentes Weiß */
     text-transform: uppercase;
 }
 
@@ -116,7 +111,7 @@ padding: 20px;
 #pokemonSearch {
     margin: 20px;
     padding: 12px 20px;
-    width: 300px;
+    width: 250px;
     border: 1px solid #ddd;
     border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -146,7 +141,7 @@ border-color: #ccc;
     background-color: white;
     padding: 20px;
     border-radius: 20px;
-    width: 90%;
+    width: 80%;
     max-width: 400px;
     position: relative;
     text-align: center;
@@ -193,7 +188,6 @@ border-color: #ccc;
 .stat-bar-fill {
     height: 100%;
     background-color: #3498db;
-    /* Standardfarbe */
     transition: width 0.5s ease-out;
 }
 
@@ -225,8 +219,6 @@ border-color: #ccc;
 .prev {
     left: -50px;
 }
-
-/* Außerhalb des Kastens auf großen Bildschirmen */
 .next {
     right: -50px;
 }
@@ -263,7 +255,6 @@ font-weight: bold;
 color: #666;
 }
 
-/* Auf Handys schieben wir sie etwas weiter rein */
 @media (max-width: 600px) {
     .prev {
         left: 10px;
