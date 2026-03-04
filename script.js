@@ -48,13 +48,15 @@ function toggleUIState(isLoading) {
 function getCardHTML(p) {
     const type = p.types[0].type.name;
     const img = p.sprites.other['official-artwork'].front_default;
-    return `
-    <div class="pokemonCard" style="background-color: ${TYPE_COLORS[type] || '#F5F5F5'}">
-        <p>#${p.id.toString().padStart(3, '0')}</p>
-        <img src="${img}" class="pokemon-image">
-        <h3 class="pokemon-name">${p.name.toUpperCase()}</h3>
-        <div class="types-container">${p.types.map(t => '<span class="type-badge">' + t.type.name + '</span>').join('')}</div> </div>;
-`
+
+    return getCardHTMLTemplate(p, img, type)
+//     return `
+//     <div class="pokemonCard" style="background-color: ${TYPE_COLORS[type] || '#F5F5F5'}">
+//         <p>#${p.id.toString().padStart(3, '0')}</p>
+//         <img src="${img}" class="pokemon-image">
+//         <h3 class="pokemon-name">${p.name.toUpperCase()}</h3>
+//         <div class="types-container">${p.types.map(t => '<span class="type-badge">' + t.type.name + '</span>').join('')}</div> </div>;
+// `
 }
 
 function renderPokemonCards(list) {
@@ -62,7 +64,7 @@ function renderPokemonCards(list) {
     list.forEach(pokemon => {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = getCardHTML(pokemon);
-        const card = tempDiv.firstElementChild;
+        const card = tempDiv.querySelector('.pokemonCard');
         card.onclick = () => showDetails(pokemon);
         container.appendChild(card);
     });
