@@ -48,7 +48,7 @@ function toggleUIState(isLoading) {
 function getCardHTML(p) {
     const type = p.types[0].type.name;
     const img = p.sprites.other['official-artwork'].front_default;
-    return`
+    return `
     <div class="pokemonCard" style="background-color: ${TYPE_COLORS[type] || '#F5F5F5'}">
         <p>#${p.id.toString().padStart(3, '0')}</p>
         <img src="${img}" class="pokemon-image">
@@ -78,13 +78,22 @@ function getStatRow(s) {
 
 function showDetails(p) {
     const body = document.getElementById('modalBody');
+    const index = allLoadedPokemon.findIndex(pokemon => pokemon.id === p.id);
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Logik: Ausblenden am Anfang/Ende
+    prevBtn.style.visibility = (index === 0) ? "hidden" : "visible";
+    nextBtn.style.visibility = (index === allLoadedPokemon.length - 1) ? "hidden" : "visible";
+
     body.innerHTML =
         `
     <h2>${p.name.toUpperCase()}</h2> 
     <p class="stat-number-id">#${p.id.toString().padStart(3, '0')}</p> 
     <img src="${p.sprites.other['official-artwork'].front_default}" style="width: 150px;"> 
     <div class="stats-container">${p.stats.map(getStatRow).join('')}</div>`;
-    
+
     document.getElementById('pokemonModal').classList.remove('hidden');
     document.body.classList.add('no-scroll');
 }
@@ -104,13 +113,13 @@ function closeModal() {
 }
 
 document.getElementById('pokemonSearch').addEventListener('input', (e) => {
-const term = e.target.value.toLowerCase();
-const cards = document.querySelectorAll('.pokemonCard');
-cards.forEach(card => {
-const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
-const shouldShow = term.length < 3 || name.includes(term);
-card.style.display = shouldShow ? "flex" : "none";
-});
+    const term = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.pokemonCard');
+    cards.forEach(card => {
+        const name = card.querySelector('.pokemon-name').innerText.toLowerCase();
+        const shouldShow = term.length < 3 || name.includes(term);
+        card.style.display = shouldShow ? "flex" : "none";
+    });
 });
 
 window.addEventListener('click', (e) => e.target.id === 'pokemonModal' && closeModal());
