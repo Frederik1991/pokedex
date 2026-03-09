@@ -50,13 +50,6 @@ function getCardHTML(p) {
     const img = p.sprites.other['official-artwork'].front_default;
 
     return getCardHTMLTemplate(p, img, type)
-//     return `
-//     <div class="pokemonCard" style="background-color: ${TYPE_COLORS[type] || '#F5F5F5'}">
-//         <p>#${p.id.toString().padStart(3, '0')}</p>
-//         <img src="${img}" class="pokemon-image">
-//         <h3 class="pokemon-name">${p.name.toUpperCase()}</h3>
-//         <div class="types-container">${p.types.map(t => '<span class="type-badge">' + t.type.name + '</span>').join('')}</div> </div>;
-// `
 }
 
 function renderPokemonCards(list) {
@@ -72,10 +65,7 @@ function renderPokemonCards(list) {
 
 function getStatRow(s) {
     const percent = Math.min(100, (s.base_stat / 200) * 100);
-    return `<div class="stat-row">
-        <span class="stat-name">${s.stat.name.toUpperCase()}</span>
-        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${percent}%"></div></div>
-        <span class="stat-number">${s.base_stat}</span> </div>`;
+    return getStatRowTemplate(s, percent)
 }
 
 function showDetails(p) {
@@ -85,16 +75,10 @@ function showDetails(p) {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
 
-    // Logik: Ausblenden am Anfang/Ende
     prevBtn.style.visibility = (index === 0) ? "hidden" : "visible";
     nextBtn.style.visibility = (index === allLoadedPokemon.length - 1) ? "hidden" : "visible";
 
-    body.innerHTML =
-        `
-    <h2>${p.name.toUpperCase()}</h2> 
-    <p class="stat-number-id">#${p.id.toString().padStart(3, '0')}</p> 
-    <img src="${p.sprites.other['official-artwork'].front_default}" style="width: 150px;"> 
-    <div class="stats-container">${p.stats.map(getStatRow).join('')}</div>`;
+    body.innerHTML = showDetailsTemplate(p)
 
     document.getElementById('pokemonModal').classList.remove('hidden');
     document.body.classList.add('no-scroll');
